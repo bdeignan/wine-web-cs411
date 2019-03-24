@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+
+{% block title %}   
+Wine Web Catalog
+{% endblock %}
+
+
+{% block content %}
+        <div class="row">
+            <form action="" method="post">
+                <h2>Your reviews</h2>
+                <table class="table" border=1 frame=hsides rules=rows>
+                    <thead>
+                        <tr>
+                            <th>Wine Name</th>
+                            <th>Review</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in result %}
+                        </tr>
+			<td> {{row.wine_name.title()}}</td>
+			<td> {{row.description}}</td>
+			<td> {{row.points}}</td>
+                        </tr>
+                    </tbody>
+                    {% endfor %}
+                </table>
+            </form>>
+        </div>
+	</div>
+
+
+{% endblock %}

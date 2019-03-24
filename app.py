@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request, redirect, flash
+from flask import Flask, render_template,request, redirect, flash, url_for
 from flask_bootstrap import Bootstrap
 import pymysql
 from forms import SearchForm, LoginForm, RegisterForm, NewLogForm, NewReviewForm
@@ -145,9 +145,12 @@ def newreview():
 	form = NewReviewForm()
 	return render_template('newreview.html', form=form)
 
-@app.route("/viewreview",methods=['GET', 'POST'])	
-def viewreview():
-	return render_template('viewreview.html')
+@app.route('/reviews', methods=['GET', 'POST'])
+def reviews():
+        result = getQuery("SELECT * FROM reviews WHERE username ='" + username + "'"
+                + " ORDER BY points DESC"
+                )
+        return render_template('reviews.html',result = result)
 	
 
 @app.route("/catalog",methods=['GET', 'POST'])	
