@@ -3,6 +3,7 @@ from flask_bootstrap import Bootstrap
 import pymysql
 from forms import SearchForm, LoginForm, RegisterForm, NewLogForm, NewReviewForm
 import json
+from helpers import BlankFormatter
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "WINE_KEY"
@@ -36,6 +37,20 @@ def insert(sql,val):
     )
     cursor = conn.cursor()
     cursor.execute(sql, val)
+    conn.commit()
+    print (cursor.rowcount)
+    return cursor.rowcount
+
+def insert_no_val(sql):
+    conn = pymysql.connect(
+        host="localhost",
+        user="root",
+        database="wine_web_2",
+        charset='utf8',
+        cursorclass=pymysql.cursors.DictCursor
+    )
+    cursor = conn.cursor()
+    cursor.execute(sql)
     conn.commit()
     print (cursor.rowcount)
     return cursor.rowcount
@@ -140,18 +155,44 @@ def newlog():
 def viewlog():
 	return render_template('viewlog.html')
 	
-@app.route("/newreview",methods=['GET', 'POST'])	
-def newreview():
-	form = NewReviewForm()
-	return render_template('newreview.html', form=form)
-
 @app.route('/reviews', methods=['GET', 'POST'])
 def reviews():
         result = getQuery("SELECT * FROM reviews WHERE username ='" + username + "'"
                 + " ORDER BY points DESC"
                 )
         return render_template('reviews.html',result = result)
-	
+
+@app.route('/addreview', methods=['GET', 'POST'])
+def addreview():
+    form = NewReviewForm()
+
+    if form.validate_on_submit():
+        fmt = BlankFormatter()
+        sql = """INSERT INTO reviews (username, wine_name, description, points, user_id)
+        VALUES('{username}',
+            REPLACE(CONCAT_WS(' ', '{winery}', {year},
+                '{designation}', '{variety}'), '  ', ' '), 
+        '{description}', 
+        {points},
+        (SELECT user_id from users where username = '{username}')
+        ) 
+        ON DUPLICATE KEY UPDATE 
+        description=VALUES(description), points=VALUES(points)"""
+
+        args = {'username':username, 
+        'winery': form.winery.data, 
+        'year': form.year.data,
+        'designation': form.designation.data,
+        'variety': form.variety.data,
+        'description': form.description.data,
+        'points': form.points.data}
+        query = fmt.format(sql, **args)
+        result = insert_no_val(query)
+        flash(str(result)+": row(s) added")
+
+        return redirect(url_for('addreview'))
+
+    return render_template('addreview.html', form=form)	
 
 @app.route("/catalog",methods=['GET', 'POST'])	
 def catalog():
