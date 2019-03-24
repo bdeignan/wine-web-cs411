@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+
+{% block title %}   
+Wine Web Catalog
+{% endblock %}
+
+
+{% block content %}
+
+	<div class="container">
+		<div class="jumbotron jum-sty">
+			<h3> Select your browsing criteria. </h3>
+			  <form action="" method="post">
+				<div class="grid-container">
+				<div>
+					{{ form.winename.label}}
+					{{ form.winename}}
+				</div>
+				<div>
+					{{ form.wineyear.label}}
+					{{ form.wineyear}}
+				</div>
+				<div>
+					{{ form.winevar.label}}
+					{{ form.winevar}}
+				</div>
+				<div>{{ form.submit() }}</div>
+				</div>
+			</form>
+        </div>
+        
+        <div class="row">
+            {% if result %}
+            <form action="/wine_details" method="post">
+                <h2>Wines Found (Note: max 50 wines listed)</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Details</th>
+                            <th>Wine Name</th>
+                            <th>Year</th>
+                            <th>Winery</th>
+                            <th>Variety</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in result %}
+                        </tr>
+                            <td><button name="details" type="submit" value="{{row.wine_name}}">Details</button></td>
+                            <td> {{row.wine_name}}</td>
+                            <td> {{row.year}}</td>
+                            <td> {{row.winery}}</td>
+                            <td> {{row.variety}}</td>
+                        </tr>
+                    </tbody>
+                    {% endfor %}
+                </table>
+            </form>>
+            {% endif %}
+        </div>
+	</div>
+
+
+{% endblock %}
+

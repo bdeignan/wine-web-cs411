@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+
+{% block title %}   
+Wine Web Visualizations 
+{% endblock %}
+
+
+{% block content %}
+
+	<div class="container">
+		<div class="jumbotron jum-sty">
+			<h3> Visualizations based on database contents </h3>
+				TBD
+		</div>
+            <div class="svg_canvas"></div>
+			
+		</div>
+	</div>	
+
+{% endblock %}
+
+
+{% block scripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+    var graphData = {{data.top_wines | safe }};
+    var margin = {top: 30, right: 50, bottom: 30, left: 50};
+    var svgWidth = 600;
+    var svgHeight = 270;
+    var width = svgWidth - margin.left - margin.right;
+    var height = svgHeight - margin.top - margin.bottom;
+
+    var names = graphData.map(function(item) {
+        return item.variety;
+    });
+
+    var values = graphData.map(function(item) {
+        return item.count;
+    });
+
+    var x = d3.scale.ordinal().domain(names).rangeRoundPoints([0, width]);
+    var y = d3.scale.linear().range([height, 0]);
+
+    var xAxis = d3.svg.axis().scale(x)
+        .orient("bottom");
+    var yAxis = d3.svg.axis().scale(y)
+        .orient("left").ticks(5);
+
+
+    var svg = d3.select(".svg_canvas").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+    updateBarChart = function() {
+
+        //x.domain(graphData.map(function(d) { return d.variety; }));
+        y.domain([0, d3.max(graphData, function(d) { return d.count; })]);
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")   
+            .call(xAxis)
+            .append("text")    
+                .style("text-anchor", "end")     
+                .attr("x", (width / 2) )
+                .attr("y",  20 )
+                .attr("dy", ".71em")
+                .style("text-anchor", "middle")
+                .style("font-size", "16px")
+                .attr("transform", function(d){return "rotate(-65)"})  
+                .text("Variety");
+                
+        // add y-axis
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+            .append("text") // and text1
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .style("font-size", "16px") 
+            .text("Count");
+
+        svg.selectAll(".bar")
+            .data(graphData)
+            .enter().append("rect")
+            .attr("class", "bar")
+            .attr("x", function(d) { return x(d.variety); })
+            .attr("width", 10)
+            .attr("y", function(d) { return y(d.count); })
+            .attr("height", function(d) { return height - y(d.count); })
+            .attr('fill', 'steelblue');
+    }
+
+    $(function() {
+        updateBarChart();
+    });    
+</script>
+{{super()}}
+{% endblock %}

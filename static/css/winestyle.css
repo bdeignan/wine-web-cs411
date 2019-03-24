@@ -1,0 +1,53 @@
+body {
+	background:#ffeedb;
+}
+
+.navbar-light .navbar-nav .nav-item .nav-link {
+	color: #ffeedb ;
+	padding: 15px;
+	text-align:center;	
+}
+
+.navbar-nav {
+	padding: 15px;
+	list-style-type: none;	
+}
+
+.btn-col {
+	color: #ffeedb;
+    background-color: #880d1e;
+    border-color: #3b0d11;
+	padding: 10px;
+}
+
+.jum-sty {
+	border:2px; 
+	border-color:#3b0d11; 
+	border-style:solid; 
+	background:white;
+}
+
+.card-sty{
+	width: 5rem; 
+	border: 2px; 
+	border-color: #3b0d11; 
+	border-style: solid; 
+	background: white; 
+}
+
+.card-ti-sty{
+	 margin-top: 20px; 
+	 margin-left: 10px; 
+	 margin-bottom: 20px
+}
+
+.grid-container {
+  display: grid;
+  padding: 10px;
+}
+
+.grid-container > div {
+	padding-top:5px;
+	padding-bottom:5px;
+
+}

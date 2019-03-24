@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+    
+
+{% block content %}
+<div class="container">
+    <h1> Welcome to Wine Web</h1>
+    <div class = "row">
+        <div class = "col-sm-6 col-boarder">
+            <h2 class="text-center">Login</h2>
+            <p>
+                {{ form.username.label}}
+                {{ form.username}}
+            </p>
+            <p>
+                {{ form.password.label}}
+                {{ form.password}}
+            </p>
+        </div>
+        <div class = "col-sm-6 col-boarder">
+            <h2 class="text-center">Register as a new user</h2>
+        </div>
+    </div>
+</div>  
+
+
+
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+
+{% block title %}   
+Wine Web Wine Details
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+
+    <div class="row">
+        {% if result %}
+        <h1>Wine Overview</h1>
+        <form action="/catalog" method="post">
+            <button name="details" type="submit">Back to catalog</button>
+        </form>
+        <div class="row">
+            <div class="col-sm-3">
+                <h3>Wine Name:</h3>
+            </div>
+            <div class="col-sm-9">
+                <h3>{{result.wine.wine_name}}</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <p>Wine Variety:</p>
+            </div>
+            <div class="col-sm-9">
+                <p>{{result.wine.variety}}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <p>Winery: </p>
+            </div>
+            <div class="col-sm-9">
+                <p>{{result.wine.winery}}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <p>Year: </p>
+            </div>
+            <div class="col-sm-9">
+                <p>{{result.wine.year}}</p>
+            </div>
+        </div>
+        
+        <br>
+        <h2>Wines Reviews</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Rating</th>
+                    <th>Review</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in result.reviews %}
+                </tr>
+                    <td> {{row.rating}}</td>
+                    <td> {{row.description}}</td>
+                </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+
+
+</div>
+{% endblock %}

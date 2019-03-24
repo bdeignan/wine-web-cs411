@@ -1,0 +1,44 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}   
+Wine Web Login
+{% endblock %}
+
+
+{% block content %}
+
+	<body style="background:#ffeedb">
+		<div class="container">
+			<div class="card card-sty" >
+				<div class="card-body">
+					<h4 class="card-title card-ti-sty"> Please login or register</h4>  
+					{% with messages = get_flashed_messages() %}
+					{% if messages %}
+						{% for message in messages %}
+						<p><strong>Error: </strong>{{ message }}
+						{% endfor %}
+					{% endif %}
+					{% endwith %}
+					<form action="" method="post">
+						<div>
+							<p>
+								{{ form.username.label}}
+								{{ form.username}}
+							</p>
+						 </div>
+						 <div>
+							<p>
+								{{ form.password.label}}
+								{{ form.password}}
+							</p>
+						 </div> 
+						 <p>{{ form.submit() }}</p>
+						 <div> <a href="{{ url_for('register') }}" type="submit"> Register New User</a> </div>
+					 </form>
+				</div>
+			</div>
+		</div>	
+		
+	</body>
+
+{% endblock %}

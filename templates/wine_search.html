@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+    
+
+
+{% block content %}
+<div class="container">
+    <h1> Wine Search</h1>
+    <h2> Enter Search Criteria - (Search based upon LIKE text%)</h2>
+    <h3> Leave blank for all</h3>
+    <form action="" method="post">
+        <p>
+            {{ form.winename.label}}
+            {{ form.winename}}
+        </p>
+        <p>
+            {{ form.wineyear.label}}
+            {{ form.wineyear}}
+        </p>
+        <p>
+            {{ form.winevar.label}}
+            {{ form.winevar}}
+        </p>
+        <p>{{ form.submit() }}</p>
+
+    </form>
+
+    <div class="row">
+        {% if result %}
+        <h2>Wines Found (Note: max 50 wines listed)</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Wine Name</th>
+                    <th>Year</th>
+                    <th>Winery</th>
+                    <th>Variety</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in result %}
+                </tr>
+                    <td> {{row.wine_name}}</td>
+                    <td> {{row.year}}</td>
+                    <td> {{row.winery}}</td>
+                    <td> {{row.variety}}</td>
+                </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock %}

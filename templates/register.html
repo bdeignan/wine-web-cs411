@@ -1,0 +1,53 @@
+{% extends "bootstrap/base.html" %}
+
+
+{% block title %}   
+Wine Web Registration
+{% endblock %}
+
+
+{% block content %}
+
+	<div class="container">
+		<div class="jumbotron jum-sty">
+            <h3> Please enter your registration information </h3>
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <p><strong>Error: </strong>{{ message }}
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+			  <form action="" method="post">
+			  <div>
+				<div>
+					<h5>
+						{{ form.username.label}}
+						{{ form.username}}
+					</h5>
+					<h5>
+							{{ form.name.label}}
+							{{ form.name}}
+					</h5>
+					<h5>
+						{{ form.email.label}}
+						{{ form.email}}
+					</h5>
+				</div>
+				<div>
+					<h5>
+						{{ form.password.label}}
+						{{ form.password}}
+					</h5>
+					<h5>
+						{{ form.password_ver.label}}
+						{{ form.password_ver}}
+					</h5>
+				 </div>
+			 </div>
+			 <p>{{ form.submit() }}</p>
+			 </form>
+		</div>
+	</div>	
+
+{% endblock %}

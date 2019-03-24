@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+
+{% block title %}   
+Wine Web New Review
+{% endblock %}
+
+
+{% block content %}
+
+	<div class="container">
+		<div class="jumbotron jum-sty">
+			<h3> Enter log information below. </h3>
+			  <form action="" method="post">
+			  <div class="grid-container">
+			
+				<div>
+					{{ form.winename.label}}
+				</div>
+				<div style = "align: right">
+					{{ form.winename}}
+				</div>
+			
+				<div>
+					{{ form.winevar.label}}
+				</div>
+				<div style = "align: right">
+					{{ form.winevar}}
+				</div>
+			
+				<div>
+					{{ form.wineyear.label}}
+				</div>
+				<div style = "align: right">
+					{{ form.wineyear}}
+				</div>
+			
+				<div>
+					{{ form.rating.label}}
+				</div>
+				<div style = "align: right">
+					{{ form.rating}}
+				</div>
+			
+				<div>
+					{{ form.reviewcontent.label}}
+				</div>
+				<div style = "align: right">
+					{{ form.reviewcontent}}
+				</div>
+			
+				<div>
+					<a href="{{ url_for('profile') }}" type="submit" class="btn btn-col">Submit Review</a>
+				</div>
+			</div>
+			</form>
+			 
+			
+		</div>
+	</div>	
+
+{% endblock %}

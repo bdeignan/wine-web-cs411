@@ -1,0 +1,20 @@
+{% block styles %}
+
+<link rel="stylesheet" type= "text/css" href="{{url_for('.static', filename='css/winestyle.css')}}">
+{% endblock %}
+
+{% block navbar %}
+	<div class="container">
+		<nav class="navbar fixed-top navbar-expand-lg navbar-light" style="background-color:#880d1e" >
+			<a class="navbar-brand" style="color: #ffeedb">Wine Web</a>
+			<ul class="navbar-nav">
+			  <li class="nav-item"><a class="nav-link" href="#" >My Logs</a></li>
+			  <li class="nav-item"><a class="nav-link" href="#" >My Recommendations</a></li>
+			  <li class="nav-item"><a class="nav-link" href="#" >My Reviews</a></li>
+			  <li class="nav-item"><a class="nav-link" href="#" >Catalog</a></li>
+			  <li class="nav-item"><a class="nav-link" href="#" >Reviews</a></li>
+			  <li class="nav-item"><a class="nav-link" href="#" >Visualization</a></li>
+			</ul>
+		</nav>
+	</div>
+	{% endblock %}
