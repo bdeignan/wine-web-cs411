@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField,PasswordField, IntegerField, FloatField
+from wtforms import StringField, SubmitField, SelectField,PasswordField, IntegerField, FloatField, TextAreaField
 from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
 
@@ -26,14 +26,15 @@ class RegisterForm(FlaskForm):
 class ProfileForm(FlaskForm):
     username = StringField('User Name')
 	
-class NewReviewForm(FlaskForm):
+class ReviewForm(FlaskForm):
     winery = StringField('Winery', validators=[DataRequired()])
     year = IntegerField('Year', validators=[DataRequired()])
     designation = StringField('Designation', default='')
-    variety = StringField('Variety', default = '')
-    points = IntegerField('Rating Points', validators=[DataRequired()])
-    description = StringField('Write your review:', widget=TextArea(), default = '')
-    submit = SubmitField('Add')
+    variety = StringField('Variety', default='')
+    points = IntegerField('Rating Points', validators=[DataRequired(), NumberRange(
+        min=0, max=100, message='Rating must be between 0 and 100')])
+    description = TextAreaField(
+        'Write my review:', widget=TextArea(), default='')
 	
 class NewLogForm(FlaskForm):
     username = StringField('User Name')

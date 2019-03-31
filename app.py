@@ -1,8 +1,9 @@
 from flask import Flask, render_template,request, redirect, flash, url_for
 from flask_bootstrap import Bootstrap
 import pymysql
-from forms import SearchForm, LoginForm, RegisterForm, NewLogForm, NewReviewForm
+from forms import SearchForm, LoginForm, RegisterForm, NewLogForm, ReviewForm
 import json
+from functools import wraps
 from helpers import BlankFormatter
 
 app = Flask(__name__)
@@ -41,7 +42,8 @@ def insert(sql,val):
     print (cursor.rowcount)
     return cursor.rowcount
 
-def insert_no_val(sql):
+# added so i can access connection inside routes
+def mysqlConnection():
     conn = pymysql.connect(
         host="localhost",
         user="root",
@@ -49,11 +51,8 @@ def insert_no_val(sql):
         charset='utf8',
         cursorclass=pymysql.cursors.DictCursor
     )
-    cursor = conn.cursor()
-    cursor.execute(sql)
-    conn.commit()
-    print (cursor.rowcount)
-    return cursor.rowcount
+
+    return conn
 
 
 #########################################################################################################
@@ -95,6 +94,17 @@ def processRegister(form):
             flash(form.username.data+': You were successfully registerd')
             correct = True
     return correct
+
+# Check if user logged in
+def is_logged_in(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if loggedIn:
+            return f(*args, **kwargs)
+        else:
+            flash('Unauthorized, Please login', 'danger')
+            return redirect(url_for('main'))
+    return wrap
 
 
 #########################################################################################################
@@ -155,44 +165,174 @@ def newlog():
 def viewlog():
 	return render_template('viewlog.html')
 	
+# All reviews dashboard
 @app.route('/reviews', methods=['GET', 'POST'])
+@is_logged_in
 def reviews():
-        result = getQuery("SELECT * FROM reviews WHERE username ='" + username + "'"
-                + " ORDER BY points DESC"
-                )
-        return render_template('reviews.html',result = result)
+    connection = mysqlConnection()
+    cur = connection.cursor()
 
-@app.route('/addreview', methods=['GET', 'POST'])
-def addreview():
-    form = NewReviewForm()
+    # Get reviews
+    result = cur.execute(
+        "SELECT * FROM reviews WHERE username = '"+username+"' ORDER BY points DESC")
 
-    if form.validate_on_submit():
+    reviews = cur.fetchall()
+
+    if result > 0:
+        return render_template('reviews.html', reviews=reviews)
+    else:
+        msg = 'No Reviews Found'
+        return render_template('reviews.html', msg=msg)
+    # Close connection
+    cur.close()
+
+
+# View single review
+@app.route('/review/<string:id>/', methods=['GET', 'POST'])
+@is_logged_in
+def review(id):
+    connection = mysqlConnection()
+    # Create cursor
+    cur = connection.cursor()
+
+    # Get review
+    _ = cur.execute("SELECT * FROM reviews WHERE id = %s", [id])
+
+    review = cur.fetchone()
+
+    return render_template('review.html', review=review)
+
+# Add a new review
+@app.route('/add_review', methods=['GET', 'POST'])
+@is_logged_in
+def add_review():
+    form = ReviewForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+
         fmt = BlankFormatter()
-        sql = """INSERT INTO reviews (username, wine_name, description, points, user_id)
-        VALUES('{username}',
-            REPLACE(CONCAT_WS(' ', '{winery}', {year},
-                '{designation}', '{variety}'), '  ', ' '), 
-        '{description}', 
+        sql = """INSERT INTO reviews (username, wine_name, winery,
+        year, designation, variety, description, points, user_id)
+        VALUES('{username}',REPLACE(CONCAT_WS(' ', '{winery}', {year},
+        '{designation}', '{variety}'), '  ', ' '),
+        '{winery}',
+        {year},
+        '{designation}',
+        '{variety}',
+        '{description}',
         {points},
         (SELECT user_id from users where username = '{username}')
-        ) 
-        ON DUPLICATE KEY UPDATE 
+        )
+        ON DUPLICATE KEY UPDATE
         description=VALUES(description), points=VALUES(points)"""
 
-        args = {'username':username, 
-        'winery': form.winery.data, 
-        'year': form.year.data,
-        'designation': form.designation.data,
-        'variety': form.variety.data,
-        'description': form.description.data,
-        'points': form.points.data}
+        args = {'username': username,
+                'winery': form.winery.data,
+                'year': form.year.data,
+                'designation': form.designation.data,
+                'variety': form.variety.data,
+                'description': form.description.data,
+                'points': form.points.data}
         query = fmt.format(sql, **args)
-        result = insert_no_val(query)
-        flash(str(result)+": row(s) added")
 
-        return redirect(url_for('addreview'))
+        connection = mysqlConnection()
+        cur = connection.cursor()
+        cur.execute(query)
+        connection.commit()
+        #Close connection
+        cur.close()
+        flash('Review Created', 'success')
 
-    return render_template('addreview.html', form=form)	
+        return redirect(url_for('add_review'))
+
+    return render_template('add_review.html', form=form)
+
+# Edit existing review
+@app.route('/edit_review/<string:id>', methods=['GET', 'POST'])
+@is_logged_in
+def edit_review(id):
+    connection = mysqlConnection()
+    # Create cursor
+    cur = connection.cursor()
+
+    # Get review by id
+    result = cur.execute("SELECT * FROM reviews WHERE id = %s", [id])
+    review = cur.fetchone()
+    cur.close()
+    # Get form
+    form = ReviewForm(request.form)
+
+    # Populate review form fields
+    form.winery.data = review['winery']
+    form.year.data = review['year']
+    form.designation.data = review['designation']
+    form.variety.data = review['variety']
+    form.description.data = review['description']
+    form.points.data = review['points']
+
+    if request.method == 'POST' and form.validate():
+        print('THIS IS WORKS')
+        args = {'winery': request.form['winery'],
+                'year': request.form['year'],
+                'designation': request.form['designation'],
+                'variety': request.form['variety'],
+                'description': request.form['description'],
+                'points': request.form['points'],
+                'id': id
+                }
+
+        # Create Cursor
+        cur = connection.cursor()
+        # Execute
+        sql = """UPDATE reviews
+        SET wine_name = REPLACE(CONCAT_WS(' ', '{winery}', {year},
+        '{designation}', '{variety}'), '  ', ' '),
+        winery = '{winery}',
+        year = {year},
+        designation = '{designation}',
+        variety = '{variety}',
+        description = '{description}',
+        points = {points}
+        WHERE id = {id}
+        """
+        fmt = BlankFormatter()
+        query = fmt.format(sql, **args)
+        cur = connection.cursor()
+        cur.execute(query)
+        connection.commit()
+
+        # Close connection
+        cur.close()
+
+        flash('Review Updated', 'success')
+
+        return redirect(url_for('reviews'))
+
+    return render_template('edit_review.html', form=form)
+
+
+# Delete review
+@app.route('/delete_review/<string:id>', methods=['POST'])
+@is_logged_in
+def delete_review(id):
+    connection = mysqlConnection()
+
+    # Create cursor
+    cur = connection.cursor()
+
+    # Execute
+    cur.execute("DELETE FROM reviews WHERE id = %s", [id])
+
+    # Commit to DB
+    connection.commit()
+
+    #Close connection
+    cur.close()
+
+    flash('Review Deleted', 'success')
+
+    return redirect(url_for('reviews'))
+
 
 @app.route("/catalog",methods=['GET', 'POST'])	
 def catalog():
