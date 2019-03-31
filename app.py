@@ -234,9 +234,17 @@ def stats():
 
 @app.route("/visualization",methods=['GET', 'POST'])	
 def visualization():
-    top_wines = getQuery(" SELECT DISTINCT (variety), count(variety) AS count FROM (select * from wines) AS w GROUP BY(variety) HAVING count(variety) > 500;")
-    top_wines = json.dumps(top_wines, indent=2)
-    data = {'top_wines': top_wines}
+    top_var = getQuery(" SELECT DISTINCT (variety) AS name, count(variety) AS count FROM (select * from wines) AS w GROUP BY(variety) ORDER BY count(variety) DESC LIMIT 20;")
+    top_var = json.dumps(top_var)
+    top_wineries = getQuery("SELECT winery AS name, COUNT(winery) AS count FROM reviews, wines WHERE reviews.wine_name = wines.wine_name GROUP BY winery ORDER BY count(winery) DESC LIMIT 20;")
+    top_wineries = json.dumps(top_wineries)
+    table_names = [
+            {'num' : '0', 'display' : 'Top Varieties', 'name' : 'tpvar','descr': 'Top 20 varieties in the database'},
+            {'num' : '1', 'display' : 'Top Wineries Reviewed', 'name' : 'tpwnery','descr': 'Top 20 wineries with most reviews'}
+        ]
+    
+    data = {'tpvar': top_var, 'tpwnery' : top_wineries, 'names' : table_names}
+
     return render_template('visualization.html',data =data)	
 	
 
