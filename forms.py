@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField,PasswordField, IntegerField, FloatField, TextAreaField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, NumberRange
 from wtforms.widgets import TextArea
 
 class SearchForm(FlaskForm):
