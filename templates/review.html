@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block body %}
+  <h1>{{review.wine_name.title()}}</h1>
+  <small>Rating points: <b>{{review.points}}</b> </small>
+  <hr>
+  <div>
+    {{review.description | safe}}
+  </div>
+{% endblock %}

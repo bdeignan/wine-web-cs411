@@ -51,3 +51,7 @@ body {
 	padding-bottom:5px;
 
 }
+
+table {
+  table-layout: fixed;
+}

@@ -7,6 +7,7 @@ Wine Web
 {% block styles %}
 {{super()}}
 <link rel="stylesheet" type= "text/css" href="{{url_for('.static', filename='css/winestyle.css')}}">
+
 {% endblock %}
 
 
@@ -27,7 +28,7 @@ Wine Web
 			<a class="nav-link dropdown-toggle" id="reviewDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Review
 			</a>
 			<div class="dropdown-menu" style="background-color:#880d1e" aria-labelledby="reviewDropdown">
-				<div> <a class="nav-link" href="{{ url_for('addreview') }}" >  Add Review  </a> </div>
+				<div> <a class="nav-link" href="{{ url_for('add_review') }}" >  Add Review  </a> </div>
 				<div> <a class="nav-link" href="{{ url_for('reviews') }}" >  My Reviews  </a> </div>
 				<div> <a class="nav-link" href="{{ url_for('reviews') }}" >  Browse  </a> </div>
 			</div>
@@ -47,10 +48,7 @@ Wine Web
         {% endfor %}
     {% endif %}
     {% endwith %}
-
-	
-	
 </div>
-{% endblock %}
 
+{% endblock %}
 
