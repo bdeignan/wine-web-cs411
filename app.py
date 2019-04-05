@@ -179,6 +179,9 @@ def wine_details():
     result = {'reviews': reviews, 'wine' : wine[0]}
     return render_template('wine_details.html',result = result)	
 
+@app.route("/favorites", methods=['GET', 'POST'])
+def favorites():
+	return render_template('favorites.html', result = result)
 
 @app.route("/recommend",methods=['GET', 'POST'])	
 def recommend():
