@@ -181,6 +181,9 @@ def wine_details():
 
 @app.route("/favorites", methods=['GET', 'POST'])
 def favorites():
+	name = request.form['favorites']
+	favorites = getQuery("SELECT wine_name FROM favorites WHERE taster_name = '"+name+"'")
+	result = { 'favorites': favorites }
 	return render_template('favorites.html', result = result)
 
 @app.route("/recommend",methods=['GET', 'POST'])	
