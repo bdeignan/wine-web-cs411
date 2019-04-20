@@ -5,6 +5,7 @@ from forms import SearchForm, LoginForm, RegisterForm, NewLogForm, ReviewForm
 import json
 from functools import wraps
 from helpers import BlankFormatter
+from recommender import recommender
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "WINE_KEY"
@@ -365,8 +366,44 @@ def wine_details():
 
 
 @app.route("/recommend",methods=['GET', 'POST'])	
+@is_logged_in
 def recommend():
-	return render_template('reccomend.html')	
+    connection = mysqlConnection()
+    cur = connection.cursor()
+    buddy_twitter = None
+    buddy = recommender.recommend(username.lower()) # lowercase name to match recs
+    print username, '\'s buddy is: ', buddy
+
+    if not recommender.cold_start:
+        _query = """select * from wines where wine_name in 
+        (select wine_name from reviews where username='{}'
+        order by points desc) limit 5""".format(buddy)
+
+        _query_twitter = "select twitter from users where username='{}'".format(buddy)
+
+    else:
+        _query = """select * from wines where wine_name in 
+        (select wine_name from reviews
+        order by points desc) limit 5"""
+
+    # Get reviews
+    result = cur.execute(_query)    
+
+    wines = cur.fetchall()
+
+    if not recommender.cold_start:
+        cur.execute(_query_twitter)    
+        buddy_twitter = cur.fetchall()
+        print buddy_twitter
+
+
+    if result > 0:
+        return render_template('recommend.html', wines=wines, twitter=buddy_twitter)
+    else:
+        msg = 'No Matches Found'
+        return render_template('recommend.html', msg=msg)
+    # Close connection
+    cur.close()
 
 @app.route("/stats",methods=['GET', 'POST'])	
 def stats():
