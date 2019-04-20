@@ -1,10 +1,18 @@
+###########################################
+#Version 19.04.2019
+#Last Edit: CFB
+###########################################
+
+
 from flask import Flask, render_template,request, redirect, flash, url_for
 from flask_bootstrap import Bootstrap
 import pymysql
 from forms import SearchForm, LoginForm, RegisterForm, NewLogForm, ReviewForm
-import json
+import simplejson as json
+import datetime
 from functools import wraps
 from helpers import BlankFormatter
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "WINE_KEY"
@@ -60,6 +68,7 @@ def mysqlConnection():
 #########################################################################################################
 loggedIn = False #set to true once login is completed
 username = None #once logged in will hold name of user
+user_id = None #one looged will hold id of user
 
 
 #########################################################################################################
@@ -115,6 +124,7 @@ def is_logged_in(f):
 def main():
     global loggedIn
     global username
+    global user_id
     form = LoginForm()
     if request.method == "POST":
         result = getQuery("SELECT * FROM users WHERE username = '"+form.username.data+"'")
@@ -122,6 +132,7 @@ def main():
         if (correct):
             loggedIn = True
             username = form.username.data
+            user_id = result[0]['user_id']
             return redirect('/profile')
         else:
             return render_template('login.html', form=form)
@@ -132,10 +143,11 @@ def main():
 def profile():
     global loggedIn
     global username
+    global user_id
     if (loggedIn):
         print ("User Name: ",username)
         result = getQuery("SELECT * FROM users WHERE username = '"+username+"'")
-        print (result)
+        print ("USER ID: ",user_id)
         return render_template('profile.html',result = result[0])
     else:
         return redirect('/index')
@@ -144,12 +156,15 @@ def profile():
 def register():
     global loggedIn
     global username
+    global user_id
     form = RegisterForm()
     if request.method == "POST":
         correct = processRegister(form)
         if (correct):
             loggedIn = True
             username = form.username.data
+            result = getQuery("SELECT * FROM users WHERE username = '"+form.username.data+"'")
+            user_id = result[0]['user_id']
             return redirect('/profile')
         else:
             return render_template('register.html', form=form)
@@ -159,13 +174,42 @@ def register():
 @app.route("/newlog",methods=['GET', 'POST'])	
 def newlog():
 	form = NewLogForm()
+	if request.method == "POST" : 
+		print("in the post.")
+		dt = datetime.datetime.now()
+		sql = "INSERT INTO logs (taster_name, wine_name, log_date, price, purchased_from, description, rating) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+		price =  float(form.price.data)
+		rate = int(form.rating.data)
+		wine_name = form.wineryname.data + " " + form.wineyear.data+" "+form.winevar.data
+		val = (username, wine_name, dt.strftime("%Y/%m/%d"),price, form.purchasepoint.data, form.logcontent.data, rate)
+		print(val)
+		print(sql)
+		r = insert(sql,val)
+		print(r)
+		if(r != 0):
+			print("yas.")
+			#flash(wine_name+' added to your log.')
+			return redirect('/viewlog')
+		else:
+			print("narp.")
+			flash('a problem has occured.') 
 	return render_template('newlog.html', form=form)
 
 @app.route("/viewlog",methods=['GET', 'POST'])	
 def viewlog():
-	return render_template('viewlog.html')
+	#global username
 	
-# All reviews dashboard
+	result = getQuery("SELECT DATE_FORMAT(log_date,'%d-%m-%Y') as log_date, wine_name, price, purchased_from, rating, description FROM logs WHERE taster_name = '"+username+"' ORDER BY log_date DESC")
+
+	for r in result:
+		print(r)
+	
+	if(len(result) == 0 ):
+		flash('Please enter items in your log.') 
+	return render_template('viewlog.html', result = result)
+	
+
+# My reviews dashboard
 @app.route('/reviews', methods=['GET', 'POST'])
 @is_logged_in
 def reviews():
@@ -186,6 +230,26 @@ def reviews():
     # Close connection
     cur.close()
 
+# All reviews dashboard
+@app.route('/allreviews', methods=['GET', 'POST'])
+@is_logged_in
+def allreviews():
+    connection = mysqlConnection()
+    cur = connection.cursor()
+
+    # Get reviews
+    result = cur.execute(
+        "SELECT * FROM reviews ORDER BY points DESC LIMIT 50")
+
+    reviews = cur.fetchall()
+
+    if result > 0:
+        return render_template('allreviews.html', reviews=reviews)
+    else:
+        msg = 'No Reviews Found'
+        return render_template('allreviews.html', msg=msg)
+    # Close connection
+    cur.close()
 
 # View single review
 @app.route('/review/<string:id>/', methods=['GET', 'POST'])
@@ -206,6 +270,8 @@ def review(id):
 @app.route('/add_review', methods=['GET', 'POST'])
 @is_logged_in
 def add_review():
+    global user_id
+    print ("Add review, user id: ",user_id)
     form = ReviewForm(request.form)
 
     if request.method == 'POST' and form.validate():
@@ -221,18 +287,22 @@ def add_review():
         '{variety}',
         '{description}',
         {points},
-        (SELECT user_id from users where username = '{username}')
+        {user_id}
         )
         ON DUPLICATE KEY UPDATE
         description=VALUES(description), points=VALUES(points)"""
+
+        fixdes = form.description.data
+        fixdes = fixdes.replace("'","''")
 
         args = {'username': username,
                 'winery': form.winery.data,
                 'year': form.year.data,
                 'designation': form.designation.data,
                 'variety': form.variety.data,
-                'description': form.description.data,
-                'points': form.points.data}
+                'description': fixdes,
+                'points': form.points.data,
+                'user_id': user_id}
         query = fmt.format(sql, **args)
 
         connection = mysqlConnection()
@@ -272,11 +342,15 @@ def edit_review(id):
 
     if request.method == 'POST' and form.validate():
         print('THIS IS WORKS')
+
+        fixdes =  request.form['description']
+        fixdes = fixdes.replace("'","''")
+
         args = {'winery': request.form['winery'],
                 'year': request.form['year'],
                 'designation': request.form['designation'],
                 'variety': request.form['variety'],
-                'description': request.form['description'],
+                'description': fixdes,
                 'points': request.form['points'],
                 'id': id
                 }
@@ -370,20 +444,31 @@ def recommend():
 
 @app.route("/stats",methods=['GET', 'POST'])	
 def stats():
-	return render_template('stats.html')
+    tot_wines = getQuery("SELECT COUNT(wine_name) as tot from wines;")
+    tot_wines = format(int(tot_wines[0]['tot']),',d')
+    tot_wineries = getQuery("SELECT COUNT(winery) as tot from winery;")
+    tot_wineries = format(int(tot_wineries[0]['tot']),',d')
+    data = {'totwin' : tot_wines, 'totwinery' : tot_wineries}
+    return render_template('stats.html',data=data)
 
 @app.route("/visualization",methods=['GET', 'POST'])	
 def visualization():
     top_var = getQuery(" SELECT DISTINCT (variety) AS name, count(variety) AS count FROM (select * from wines) AS w GROUP BY(variety) ORDER BY count(variety) DESC LIMIT 20;")
     top_var = json.dumps(top_var)
-    top_wineries = getQuery("SELECT winery AS name, COUNT(winery) AS count FROM reviews, wines WHERE reviews.wine_name = wines.wine_name GROUP BY winery ORDER BY count(winery) DESC LIMIT 20;")
+    top_wineries = getQuery("SELECT wines.winery AS name, COUNT(wines.winery) AS count FROM reviews, wines WHERE reviews.wine_name = wines.wine_name GROUP BY wines.winery ORDER BY count(wines.winery) DESC LIMIT 20;")
     top_wineries = json.dumps(top_wineries)
+    top_price = getQuery("SELECT country AS name, price AS count FROM country_prices ORDER BY price DESC LIMIT 20;")
+    top_price = json.dumps(top_price)
+    bot_price = getQuery("SELECT country AS name, price AS count FROM country_prices ORDER BY price LIMIT 20;")
+    bot_price = json.dumps(bot_price)
     table_names = [
             {'num' : '0', 'display' : 'Top Varieties', 'name' : 'tpvar','descr': 'Top 20 varieties in the database'},
-            {'num' : '1', 'display' : 'Top Wineries Reviewed', 'name' : 'tpwnery','descr': 'Top 20 wineries with most reviews'}
+            {'num' : '1', 'display' : 'Top Wineries Reviewed', 'name' : 'tpwnery','descr': 'Top 20 wineries with most reviews'},
+            {'num' : '2', 'display' : 'Most Expensive Countries', 'name' : 'costtop', 'descr' : 'Top 20 most expensive countries based upon average wine price'},
+            {'num' : '3', 'display' : 'Least Expensive Countries', 'name' : 'costbot', 'descr' : 'Top 20 least expensive countries based upon average wine price'}
         ]
     
-    data = {'tpvar': top_var, 'tpwnery' : top_wineries, 'names' : table_names}
+    data = {'tpvar': top_var, 'tpwnery' : top_wineries, 'costtop' : top_price, 'costbot' : bot_price, 'names' : table_names}
 
     return render_template('visualization.html',data =data)	
 	

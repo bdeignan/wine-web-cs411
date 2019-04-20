@@ -38,12 +38,15 @@ class ReviewForm(FlaskForm):
 	
 class NewLogForm(FlaskForm):
     username = StringField('User Name')
-    winename = StringField('Wine Name')
+    wineryname = StringField('Winery Name')
     winevar = StringField('Variety')
     wineyear = StringField('Year')
-    rating = IntegerField('Rating')
+    rating = IntegerField('Rating Points', validators=[DataRequired(), NumberRange(min=0, max=100, message='Rating must be between 0 and 100')])
     price = FloatField('Price')
     purchasepoint = StringField('Purchased from')
     logcontent = StringField('Log')
     submit = SubmitField('Enter')
+	
+class ViewLogForm(FlaskForm):
+	 username = StringField('User Name')
 	

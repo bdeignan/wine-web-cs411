@@ -5,30 +5,34 @@
 Wine Web New Review
 {% endblock %}
 
-{% block body %}
-<h3>Add Review</h3>
-{% from "includes/_formhelpers.html" import render_field %}
-<form method="POST" action="">
-    <!-- Added line -->
-    {{ form.csrf_token }}
-    <div class="form-group">
-        {{ render_field(form.winery, class_="form-control") }}
-    </div>
-    <div class="form-group">
-        {{ render_field(form.year, class_="form-control") }}
-    </div>
-    <div class="form-group">
-        {{ render_field(form.designation, class_="form-control") }}
-    </div>
-    <div class="form-group">
-        {{ render_field(form.variety, class_="form-control") }}
-    </div>
-    <div class="form-group">
-        {{ render_field(form.points, class_="form-control") }}
-    </div>
-    <div class="form-group">
-        {{ render_field(form.description, class_="form-control", id="editor") }}
-    </div>
-    <p><input class="btn btn-primary" type="submit" value="Submit">
-</form>
+{% block content %}
+<div class="container">
+	<div class="jumbotron jum-sty">
+		<h3>Add Review</h3>
+		{% from "includes/_formhelpers.html" import render_field %}
+		<form method="POST" action="">
+			<!-- Added line -->
+			{{ form.csrf_token }}
+			<div class="form-group">
+				{{ render_field(form.winery, class_="form-control") }}
+			</div>
+			<div class="form-group">
+				{{ render_field(form.year, class_="form-control") }}
+			</div>
+			<div class="form-group">
+				{{ render_field(form.designation, class_="form-control") }}
+			</div>
+			<div class="form-group">
+				{{ render_field(form.variety, class_="form-control") }}
+			</div>
+			<div class="form-group">
+				{{ render_field(form.points, class_="form-control") }}
+			</div>
+			<div class="form-group">
+				{{ render_field(form.description, class_="form-control", id="editor") }}
+			</div>
+			<p><input class="btn btn-primary" type="submit" value="Submit">
+		</form>
+	</div>
+</div>
 {% endblock %}
