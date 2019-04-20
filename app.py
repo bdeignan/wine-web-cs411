@@ -1,6 +1,6 @@
 ###########################################
-#Version 19.04.2019
-#Last Edit: CFB
+#Version 20.04.2019
+#Last Edit: DEIGNAN3
 ###########################################
 
 
@@ -12,6 +12,7 @@ import simplejson as json
 import datetime
 from functools import wraps
 from helpers import BlankFormatter
+from recommender import recommender
 
 
 app = Flask(__name__)
@@ -266,6 +267,28 @@ def review(id):
 
     return render_template('review.html', review=review)
 
+# View all reviews for a wine
+@app.route('/reviews/<string:wine_name>/', methods=['GET', 'POST'])
+@is_logged_in
+def wine_reviews(wine_name):
+    connection = mysqlConnection()
+    cur = connection.cursor()
+
+    # Get reviews
+    result = cur.execute(
+        "SELECT * FROM reviews WHERE wine_name = '{}' ORDER BY points DESC".format(wine_name)
+        )
+
+    reviews = cur.fetchall()
+
+    if result > 0:
+        return render_template('allreviews.html', reviews=reviews)
+    else:
+        msg = 'No Reviews Found'
+        return render_template('allreviews.html', msg=msg)
+    # Close connection
+    cur.close()
+
 # Add a new review
 @app.route('/add_review', methods=['GET', 'POST'])
 @is_logged_in
@@ -439,8 +462,45 @@ def wine_details():
 
 
 @app.route("/recommend",methods=['GET', 'POST'])	
+@is_logged_in
 def recommend():
-	return render_template('reccomend.html')	
+    connection = mysqlConnection()
+    cur = connection.cursor()
+    buddy_twitter = None
+    buddy = recommender.recommend(username.lower()) # lowercase name to match recs
+    print username, '\'s buddy is: ', buddy
+
+    if not recommender.cold_start:
+        ## THIS IS WHERE THE VIEW SHOULD GO
+        _query = """select * from wines where wine_name in 
+        (select wine_name from reviews where username='{}'
+        order by points desc) limit 5""".format(buddy)
+
+        _query_twitter = "select twitter from users where username='{}'".format(buddy)
+
+    else:
+        _query = """select * from wines where wine_name in 
+        (select wine_name from reviews
+        order by points desc) limit 5"""
+
+    # Get reviews
+    result = cur.execute(_query)    
+
+    wines = cur.fetchall()
+
+    if not recommender.cold_start:
+        cur.execute(_query_twitter)    
+        buddy_twitter = cur.fetchall()
+        print buddy_twitter
+
+
+    if result > 0:
+        return render_template('recommend.html', wines=wines, twitter=buddy_twitter)
+    else:
+        msg = 'No Matches Found'
+        return render_template('recommend.html', msg=msg)
+    # Close connection
+    cur.close()	
 
 @app.route("/stats",methods=['GET', 'POST'])	
 def stats():
