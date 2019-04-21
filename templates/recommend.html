@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+
+{% block title %}   
+Wine Web Catalog
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+	<div class="jumbotron jum-sty">
+      <h1>We Recommend </h1>        
+      <hr>
+	  <table class="table table-striped">
+		<tr>
+            <th>Wine Name</th>
+            <th>Year</th>
+            <th>Winery</th>
+            <th>Variety</th>
+        </tr>
+            {% for row in wines %}
+            <tr>
+                <td> <a href={{url_for('wine_reviews', wine_name=row.wine_name)}}>{{row.wine_name.title()}}</a></td>
+                <td> {{row.year}}</td>
+                <td> {{row.winery}}</td>
+                <td> {{row.variety}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% if twitter and twitter != '' %}
+        <h3>Connect with your wine match on Twitter: {{twitter[0].twitter}}</h3>
+        {% endif %}
+        </div>
+	</div>
+
+
+{% endblock %}

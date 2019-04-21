@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Wine Web New Review
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+        <div class="jumbotron jum-sty">
+                <h3> Winery, year and points are all required fields. </h3>
+                <form action="" method="post">
+                        <div class="grid-container">
+                                {{ form.hidden_tag() }}
+                                <p>
+                                        {{ form.winery.label}}<br>
+                                        {{ form.winery}}<br>
+                                        {% for error in form.winery.errors %}
+                                        <span style="color: red;">[{{ error }}]</span>
+                                        {% endfor %}
+                                </p>
+                                <p>
+                                        {{ form.year.label}}<br>
+                                        {{ form.year}}<br>
+                                        {% for error in form.year.errors %}
+                                        <span style="color: red;">[{{ error }}]</span>
+                                        {% endfor %}
+                                </p>
+                                <p>
+                                        {{ form.designation.label}}<br>
+                                        {{ form.designation}}<br>
+                                </p>
+                                <p>
+                                        {{ form.variety.label}}<br>
+                                        {{ form.variety}}<br>
+                                </p>
+                                <p>
+                                        {{ form.points.label}}<br>
+                                        {{ form.points}}<br>
+                                        {% for error in form.points.errors %}
+                                        <span style="color: red;">[{{ error }}]</span>
+                                        {% endfor %}
+                                </p>
+                                <p>
+                                        {{ form.description.label}}<br>
+                                        {{ form.description}}<br>
+                                </p>
+                                <p>{{ form.submit() }}</p>
+
+                                {% with messages = get_flashed_messages() %}
+                                {% if messages %}
+                                <ul>
+                                        {% for message in messages %}
+                                        <li>{{ message }}</li>
+                                        {% endfor %}
+                                </ul>
+                                {% endif %}
+                                {% endwith %}
+                        </div>
+                </form>
+
+                {% endblock %}

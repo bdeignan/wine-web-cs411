@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+
+{% block title %}   
+Wine Web Catalog
+{% endblock %}
+
+{% block content %}
+<div class="container">
+	<div class="jumbotron jum-sty">
+	  <h1>Browse Reviews </h1>
+	  <a class="btn btn-success" href="/add_review"> Add review</a>
+	  <hr>
+	  <table class="table table-striped">
+		<tr>
+		  <th>ID</th>
+		  <th>Wine Name</th>
+		  <th>Points</th>
+		  <th></th>
+		  <th></th>
+		</tr>
+		{% for review in reviews %}
+		  <tr>
+			<td>{{review.id}}</td>
+			<td><a href={{url_for('review', id=review.id)}}>{{review.wine_name.title()}}</a></td>
+			<td>{{review.points}}</td>
+			 
+		  </tr>
+		{% endfor %}
+	  </table>
+	</div>
+</div>	
+{% endblock %}

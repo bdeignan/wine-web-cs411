@@ -10,8 +10,40 @@ Wine Web View Log
 
 	<div class="container">
 		<div class="jumbotron jum-sty">
-			<h3> get past logs for username </h3>
-				display here
+			<div class = "row">
+			{%if result%}
+			<form action = "" method = "GET">
+			<h3>Here are your past logs. </h3>
+			<table class = "table">
+				<thead>
+					<tr>
+						<b>
+						<th>Date Logged</th>
+						<th> Wine </th>
+						<th> Price </th>
+						<th> Purchased From </th>
+						<th> Rating </th>
+						<th> Notes </th>
+						</b>
+					</tr>
+				</thead>
+				<tbody>
+					{%for row in result%}
+					<tr>
+						<td>{{row.log_date}}</td>
+						<td>{{row.wine_name}}</td>
+						<td>{{row.price}}</td>
+						<td>{{row.purchased_from}}</td>
+						<td>{{row.rating}}</td>
+						<td>{{row.description}}</td>
+						
+					</tr>
+					{%endfor%}
+				</tbody>
+			</table>
+			</form>
+			{%endif%}
+			</div>
 		</div>
 			 
 			

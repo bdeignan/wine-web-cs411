@@ -27,18 +27,28 @@ body {
 	background:white;
 }
 
+.card-bod-sty{
+
+	padding: 15px;
+}
+
 .card-sty{
-	width: 5rem; 
+	
+	width: 40rem;
 	border: 2px; 
 	border-color: #3b0d11; 
 	border-style: solid; 
 	background: white; 
+	padding: 10px; 
+	margin-right: auto !important;
+	margin-left: auto !important;
+
+
 }
 
 .card-ti-sty{
-	 margin-top: 20px; 
-	 margin-left: 10px; 
-	 margin-bottom: 20px
+	 margin-top: 10px;  
+	 margin-bottom: 10px;
 }
 
 .grid-container {

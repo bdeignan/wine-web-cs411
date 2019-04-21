@@ -10,12 +10,26 @@ Wine Web Visualizations
 
 	<div class="container">
 		<div class="jumbotron jum-sty">
-			<h3> Stats based on database contents </h3>
-				TBD
-		</div>
-            <div class="svg_canvas"></div>
-			
-		</div>
+            <h3> Stats based on database contents </h3>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Total Wines in Database</td>
+                            <td>{{data.totwin}}</td>
+                        </tr>
+                        <tr>
+                            <td>Total Wineris in Database</td>
+                            <td>{{data.totwinery}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+        </div> 
 	</div>	
 
 {% endblock %}

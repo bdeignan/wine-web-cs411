@@ -4,14 +4,18 @@
 Wine Web Login
 {% endblock %}
 
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" type= "text/css" href="{{url_for('.static', filename='css/winestyle.css')}}">
+{% endblock %}
 
 {% block content %}
 
 	<body style="background:#ffeedb">
 		<div class="container">
 			<div class="card card-sty" >
-				<div class="card-body">
-					<h4 class="card-title card-ti-sty"> Please login or register</h4>  
+				<div class="card-body card-bod-sty mx-auto">
+					<h4 class="card-title"> Please login or register</h4>  
 					{% with messages = get_flashed_messages() %}
 					{% if messages %}
 						{% for message in messages %}
