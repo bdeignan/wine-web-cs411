@@ -103,3 +103,15 @@ LOCAL INFILE '/Users/bmd/git/wine-web-cs411/csv_files/winery3.csv'
 INTO TABLE winery 
 FIELDS TERMINATED BY ';' 
 LINES TERMINATED BY '\n' IGNORE 1 ROWS;
+
+CREATE TABLE IF NOT EXISTS logs (
+    log_id MEDIUMINT NOT NULL AUTO_INCREMENT,
+    taster_name VARCHAR(255) NOT NULL,
+    wine_name VARCHAR(255) NOT NULL,
+    log_date DATE,
+    price DECIMAL(5, 2),
+    purchased_from VARCHAR(255),
+    description VARCHAR(1056),
+    rating INT DEFAULT 0,
+    PRIMARY KEY(log_id)
+); 
