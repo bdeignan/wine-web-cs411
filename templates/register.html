@@ -13,9 +13,10 @@ Wine Web Registration
 
 {% block content %}
 
-	<div class="container">
-		<div class="jumbotron jum-sty">
-            <h3> Please enter your registration information </h3>
+	<div class="container" style="margin-top: 20px;">
+		<div class="card card-sty" >
+			<div class="card-body card-bod-sty mx-auto">
+            <h4 class="card-title"> Please enter your registration information </h4>
             {% with messages = get_flashed_messages() %}
             {% if messages %}
                 {% for message in messages %}
@@ -54,5 +55,6 @@ Wine Web Registration
 			 </form>
 		</div>
 	</div>	
+</div>
 
 {% endblock %}

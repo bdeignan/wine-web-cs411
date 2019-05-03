@@ -54,6 +54,15 @@ svg.append("g")
 svg.append("g")
     .attr("class","yAxis");
 
+
+var tooltip = d3.select("#navbar")
+ .append("div")
+ .attr("class", "toolTip");
+
+var div = d3.select("body").append("div")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0);
+
 updateBarChart = function() {
 
     var names = graphData.map(function(item) {
@@ -68,7 +77,7 @@ updateBarChart = function() {
     x.domain(names);
     
     x.domain(graphData.map(function(d) { return d.name; }));
-    y.domain([0, d3.max(graphData, function(d) { return d.count; })]);
+    y.domain([ d3.min(graphData, function(d) { return d.count; })*.9, d3.max(graphData, function(d) { return d.count; })*1.1]);
 
 
     var y_axis = svg.selectAll(".yAxis")
@@ -80,6 +89,8 @@ updateBarChart = function() {
 
     d3.select(".xAxis").remove();
     d3.select(".yAxis").remove();
+    d3.select(".xlabel").remove();
+    d3.select(".ylabel").remove();
 
     svg.append("g")
         .attr("class", "xAxis")
@@ -91,6 +102,15 @@ updateBarChart = function() {
             .attr("dy", ".15em")
             .attr("transform", "rotate(-65)");
 
+    svg.append("text")
+        .attr("class", "xlabel")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text(tableData[activeScene].ylabel);
+
            
     // add y-axis
     svg.append("g")
@@ -101,11 +121,17 @@ updateBarChart = function() {
             .attr("y", 6)
             .attr("dy", ".71em")
             .style("text-anchor", "end")
-            .style("font-size", "16px") 
-            .text("Count");
+            .style("font-size", "16px");
+            
+    svg.append("text")
+        .attr("class", "ylabel")           
+        .attr("transform",
+                "translate(" + (width/2) + " ," + 
+                                (height + margin.top + 60) + ")")
+        .style("text-anchor", "middle")
+        .text(tableData[activeScene].xlabel);
 
-
-
+    if (tableData[activeScene].type == 'bar') {
     var bars = svg.selectAll(".bar")
         .remove()
         .exit()
@@ -117,5 +143,48 @@ updateBarChart = function() {
         .attr("width", 20)
         .attr("y", function(d) { return y(d.count); })
         .attr("height", function(d) { return height - y(d.count); })
-        .attr('fill', 'steelblue');
+        .attr('fill', tableData[activeScene].color)
+        .on("mouseover", function(d) {
+            div.transition()		
+                .duration(200)		
+                .style("opacity", .9);
+            div.html("<strong>" +d.name+": "+d.count.toLocaleString('en', {useGrouping:true})+"</strong>")
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY-20) + "px")
+                .style("display", "inline-block")
+        })
+        .on("mouseout", function(d) {		
+            div.transition()		
+                .duration(500)		
+                .style("opacity", 0)	
+        });
+    }
+
+    if (tableData[activeScene].type == 'point') {
+    var bars = svg.selectAll(".bar")
+        .remove()
+        .exit()
+        .data(graphData)
+    bars.enter()
+        .append('circle')
+        .attr("class", "bar") 
+        .attr("r", 10)
+        .attr('fill', tableData[activeScene].color)         
+        .attr("cx", function(d) { return x(d.name); })
+        .attr("cy", function(d) { return y(d.count); })
+        .on("mouseover", function(d) {
+            div.transition()		
+                .duration(200)		
+                .style("opacity", .9);
+            div.html("<strong>" +d.name+": "+d.count.toLocaleString('en', {useGrouping:true})+"</strong>")
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY-20) + "px")
+                .style("display", "inline-block")
+        })
+        .on("mouseout", function(d) {		
+            div.transition()		
+                .duration(500)		
+                .style("opacity", 0)	
+        });
+    }
 }

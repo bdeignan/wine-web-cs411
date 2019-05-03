@@ -16,3 +16,6 @@ CREATE TABLE reviews (
 LOAD DATA LOCAL INFILE '/home/server/csv_files/reviews.csv' INTO TABLE reviews FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS;
 
 
+
+
+SELECT country, avg(points) FROM winery, wines, reviews where winery.winery = wines.winery  AND reviews.wine_name = wines.wine_name GROUP BY country;

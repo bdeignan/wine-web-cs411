@@ -13,8 +13,9 @@ Wine Web View Log
 			<div class = "row">
 			{%if result%}
 			<form action = "" method = "GET">
-			<h3>Here are your past logs. </h3>
-			<table class = "table">
+			<h3>Here are your past logs. </h3> 
+			<a class="btn btn-success" href="/add_review"> Add log</a>
+			<table class = "table table-striped">
 				<thead>
 					<tr>
 						<b>
@@ -24,6 +25,8 @@ Wine Web View Log
 						<th> Purchased From </th>
 						<th> Rating </th>
 						<th> Notes </th>
+						<th></th>
+						<th></th>
 						</b>
 					</tr>
 				</thead>
@@ -36,7 +39,12 @@ Wine Web View Log
 						<td>{{row.purchased_from}}</td>
 						<td>{{row.rating}}</td>
 						<td>{{row.description}}</td>
-						
+						<td>
+						  <form action="{{url_for('dellog', id=row.log_id)}}" method="post">
+							<input type="hidden" name="_method" value="DELETE">
+							<input type="submit" value="Delete" class="btn btn-danger">
+						  </form>
+						</td>
 					</tr>
 					{%endfor%}
 				</tbody>
